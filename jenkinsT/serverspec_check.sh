@@ -30,16 +30,17 @@ function check_Network() {
     # The maximum allowable time data transmission
     maxtime=10
     # check website or ip
-    target="bi1tbucket.org"
+    target="bitbucket.org"
 
+    # get http_code
     ret=`curl -I -s --connect-timeout $timeout -m $maxtime $target -w %{http_code} | tail -n1`
     echo "$ret"
 
     if [ "$ret" = "302" ] || [ "$ret" = "301" ] || [ "$ret" = "200" ]; then
         echo "$target connect succeed"
-        #exit 0
     else
         echo "$target connect failed"
+        # exit current bash shell
         exit 1
     fi
 }
