@@ -10,7 +10,7 @@
 ##################### 
 ## Modify   : doungni
 ## Describe : Add Bitbucket.org judge connect 
-## Updated  : 2015Äê10ÔÂ28ÈÕ07:08:09
+## Updated  : 2015-10-28 16:27:52
 ##-------------------------------------------------------------------
 
 ################################################################################################
@@ -24,20 +24,20 @@
 ################################################################################################
 
 
-function networkJudge() {
+function check_Network() {
     timeout=7
+    maxtime=10
     target="bitbucket.org"
-    #ret=`curl -I -s --connect-timeout $timeout $target -w %{http_code} | tail -n1`
-    ret=`curl -I -s --connect-timeout 7  bitbucket.org -w %{http_code} | tail -n1`
+
+    ret=`curl -I -s --connect-timeout $timeout -m $maxtime $target -w %{http_code} | tail -n1`
     echo "$ret"
 
-    # judge {http_code} 301/302, avoid github.com/www.github.com£¬reture 301 & 302
     if [ "$ret" = "302" ] || [ "$ret" = "301" ] || [ "$ret" = "200" ]; then
-        echo "connect succeed"
-        #exit 0
+        echo "$target connect succeed"
+        exit 0
     else
-        echo "connect failed"
-        #exit 1
+        echo "$target connect failed"
+        exit 1
     fi
 }
 
@@ -96,6 +96,7 @@ EOF
 }
 
 #####################################################
+check_Network
 working_dir="/var/lib/jenkins/serverspec"
 mkdir -p $working_dir/spec/localhost
 cd $working_dir
@@ -104,7 +105,6 @@ cd $working_dir
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
-networkJudge
 install_serverspec
 setup_serverspec $working_dir
 
