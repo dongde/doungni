@@ -37,7 +37,7 @@ function check_Network() {
 
     if [ "$ret" = "302" ] || [ "$ret" = "301" ] || [ "$ret" = "200" ]; then
         echo "$target connect succeed"
-        exit 0
+        #exit 0
     else
         echo "$target connect failed"
         exit 1
