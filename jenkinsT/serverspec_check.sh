@@ -31,12 +31,12 @@ function networkJudge() {
     echo "$ret"
 
     # judge {http_code} 301/302, avoid github.com/www.github.com£¬reture 301 & 302
-    if [ "$ret" = "302" ] || [ "$ret" = "301" ]; then
+    if [ "$ret" = "302" ] || [ "$ret" = "301" ] || [ "$ret" = "200" ]; then
         echo "connect succeed"
-        exit 0
+        #exit 0
     else
         echo "connect failed"
-        exit 1
+        #exit 1
     fi
 }
 
