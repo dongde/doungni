@@ -25,9 +25,10 @@
 
 
 function networkJudge() {
-    timeout=7
-    target="bitbucket.org"
-    ret=`curl -I -s --connect-timeout $timeout $target -w %{http_code} | tail -n1`
+    #timeout=7
+    #target="bitbucket.org"
+    #ret=`curl -I -s --connect-timeout $timeout $target -w %{http_code} | tail -n1`
+    ret=`curl -I -s --connect-timeout 7 bitbucket.org -w %{http_code} | tail -n1`
     echo "$ret"
 
     # judge {http_code} 301/302, avoid github.com/www.github.com£¬reture 301 & 302
