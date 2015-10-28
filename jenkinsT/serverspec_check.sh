@@ -25,8 +25,11 @@
 
 
 function check_Network() {
+    #connect timeout
     timeout=7
+    # The maximum allowable time data transmission
     maxtime=10
+    # check website or ip
     target="bitbucket.org"
 
     ret=`curl -I -s --connect-timeout $timeout -m $maxtime $target -w %{http_code} | tail -n1`
