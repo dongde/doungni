@@ -38,6 +38,7 @@ function check_Network() {
 
     if [ "$ret" = "302" ] || [ "$ret" = "301" ] || [ "$ret" = "200" ]; then
         echo "$target connect succeed"
+        echo "################################"
     else
         echo "$target connect failed"
         # exit current bash shell
