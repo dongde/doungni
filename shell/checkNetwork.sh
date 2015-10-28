@@ -1,12 +1,11 @@
 #!/bin/bash -e
 
 ##################################################
-# FileName : Ju.sh                       #
-# Create   : 2015Äê10ÔÂ27ÈÕ                        #
-# Author   : Doungni                               #
-# Describe : judge network,by funcrion
-# Update   :                                       #
-#                                                #
+# FileName : checkNetwork.sh 
+# Create   : 2015.10.27
+# Author   : Doungni  
+# Describe : check network,by checkNetwork()
+# Update   : 10.18   
 ##################################################
 
 function checkNetwork() {
