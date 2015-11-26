@@ -8,12 +8,12 @@
 ################################################################################################
 
 ################################################################################################
-# * Parameter         :
-#   docker_image_name : By jenkins job configuration
-#   docker_image_path : By jenkins job configuration
-#   docker_daemon_port: By jenkins job configuration
-#   split_file_size   : By jenkins job configuration
-#   file_md5_path     : ${image_path}/file_md5_path
+# * Parameter          :
+#   appoint_save_docker: By jenkins job configuration
+#   docker_image_name  : By jenkins job configuration
+#   docker_image_path  : By jenkins job configuration
+#   docker_daemon_port : By jenkins job configuration
+#   split_file_size    : By jenkins job configuration
 #
 ################################################################################################
 
@@ -42,22 +42,26 @@ function recognize_docker_daemon_ip() {
 
 # save docker image, by ssh method
 function save_docker_image() {
-
     # from jenkins container to docker daemon server
     ssh -tt -p ${docker_daemon_port} root@${docker_daemon_ip} <<EOF
         mkdir -p ${docker_image_path}
-
         cd ${docker_image_path}
-	    mkdir -p ${docker_image_name%%.*}_${datefile}
+	
+	docker -v
+	return_val=$?
+	if [ "x${return_val}"="x0" ]; then
+ 	    docker save ${appoint_save_docker} > ${docker_image_name}
 
-        if [ -r ${docker_image_name} ]; then
-	        cd ${docker_image_name%%.*}_${datefile}
-            split -b ${file_size} ../${docker_image_name} ${docker_image_name%%.*}
-	        md5sum \`ls ${docker_image_name%%.*}*\` > ${docker_image_name%%.*}.md5
-        else
-	        log "The ${image_name} can not found in the ${docker_image_path}"
-        fi
-        exit 1
+            if [ -r ${docker_image_name} ]; then
+                split -b ${file_size} ${docker_image_name} ${docker_image_name%%.*}
+	        md5sum \`find ! -name "*.md5" ! -name "*.tar.gz" ! -name "*.*"\` > ${docker_image_name%%.*}.md5
+            else
+	        log "The ${docker_image_name} can not read"
+            fi
+ 	else
+	    log "Docker service can not find"
+	fi
+        exit
 EOF
 }
 
@@ -65,8 +69,6 @@ EOF
 
 # each file split bytes
 file_size=$(( ${split_file_size} * 1024 * 1024 ))
-
-datefile=`date +%Y-%m-%d`
 
 docker_daemon_ip=$(recognize_docker_daemon_ip)
 if [ -z $docker_daemon_ip ]; then
