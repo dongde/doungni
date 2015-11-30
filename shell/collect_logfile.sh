@@ -49,12 +49,10 @@ function collect_logfile() {
 
     # Each server is separated by a comma
     server_arr=(${server_list//,/ })
-    log "Print current collect logfile IP and Port:"
+    log "Current collect logfile IP:Port:"
     for i in ${server_arr[*]}
     do
-        "\t"
-        log "$i"
-        "\r"
+        echo -e "\t$i\n"
     done
     exit
 
