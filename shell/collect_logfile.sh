@@ -49,12 +49,14 @@ function collect_logfile() {
 
     # Each server is separated by a comma
     server_arr=(${server_list//,/ })
+
+    local n=1
     log "Current collect logfile IP:Port:"
     for i in ${server_arr[*]}
     do
-        echo -e "\t$i\n"
+        echo -e "\t$n.$i\n"
+        n = `expr $n + 1`
     done
-    exit
 
     for server in ${server_arr[*]}
     do
@@ -65,64 +67,70 @@ function collect_logfile() {
         server_ip=${server_split[0]}
       	if [ -z "${server_ip}" ]; then
     	    log "####### Please refer to the correct parameters for the prompt configuration #######"
-	    exit 1
+	        exit 1
     	fi
 
         server_port=${server_split[1]}
       	if [ -z "${server_port}" ]; then
     	    log "####### Please refer to the correct parameters for the prompt configuration #######"
-	    exit 1
+	        exit 1
     	fi
 
         log "####### The server ip: ${server_ip}, ssh port: ${server_port} #######"
 
-	    mkdir -p ${work_path}/${server_ip}
-	    cd ${work_path}/${server_ip}
-
-        # Cycle logfile_list
-        for logfile in ${logfile_list[*]}
-        do
-            # get server_ip hostname
-            server_hostname=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "hostname"`
-
-            # by connect ip collect logfile
-            log "####### Start into ${server_hostname}-${server} collect logfile #######"
-            log "####### Logfile: $logfile #######"
-
-       	    # True if logfile exists and is readable
-            ssh_result=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "\
-                test -r ${logfile}" && echo yes || echo no`
-
-            # If exist and readable
-            if [ "x${ssh_result}" == "xyes" ]; then
-                # deal with logfile
-            	logfile_parent_dir=${logfile%/*}
-                mkdir -p ${logfile_parent_dir#*/}
-                logfile_name=${logfile##*/}
-
-                # ${tail_line} <= 0 or null
-                if [ $tail_line -le 0 ] || [ -z $tail_line ];then
-    	            log "####### Please refer to the correct parameters for the prompt configuration #######"
-                    exit 1
-                else
-                    # collect the tail line of the log file.
-                    ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "\
-                        tail -n ${tail_line} ${logfile}" > ./${logfile_parent_dir}/${logfile_name}
+        # Increase the IP connection judgment
+        ping -c2 ${server_ip}
+        if [ $? -eq 0 ]; then
+    	    mkdir -p ${work_path}/${server_ip}
+    	    cd ${work_path}/${server_ip}
+    
+            # cycle logfile_list
+            for logfile in ${logfile_list[*]}
+            do
+                # get server_ip hostname
+                server_hostname=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "hostname"`
+    
+                # by connect ip collect logfile
+                log "####### Start into ${server_hostname}-${server} collect logfile #######"
+                log "####### Logfile: $logfile #######"
+    
+           	    # True if logfile exists and is readable
+                ssh_result=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "\
+                    test -r ${logfile}" && echo yes || echo no`
+    
+                # If exist and readable
+                if [ "x${ssh_result}" == "xyes" ]; then
+                    # deal with logfile
+                	logfile_parent_dir=${logfile%/*}
+                    mkdir -p ${logfile_parent_dir#*/}
+                    logfile_name=${logfile##*/}
+    
+                    # ${tail_line} <= 0 or null
+                    if [ $tail_line -le 0 ] || [ -z $tail_line ];then
+        	            log "####### Please refer to the correct parameters for the prompt configuration #######"
+                        exit 1
+                    else
+                        # collect the tail line of the log file.
+                        ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "\
+                            tail -n ${tail_line} ${logfile}" > ./${logfile_parent_dir}/${logfile_name}
+                    fi
+    	        else
+        	        log "####### The ${logfile} is not found on the ${server_hostname}-${server} #######"
                 fi
-	        else
-    	        log "####### The ${logfile} is not found on the ${server_hostname}-${server} #######"
-            fi
-        done
 
-        # Pack all the log files in the server
-		
-        cd ${work_path}
-            
-        # compress current ${server_ip} logfile, include empty file
-        tar -zcf ${server_hostname}-${server_ip}-${collect_time}.tar.gz ${server_ip}/*
-        # Delete ${server_ip}
-        rm -rf ${server_ip}
-    done
+                # Pack all the log files in the server
+		        
+                cd ${work_path}
+                    
+                # compress current ${server_ip} logfile, include empty file
+                tar -zcf ${server_hostname}-${server_ip}-${collect_time}.tar.gz ${server_ip}/*
+                # Delete ${server_ip}
+                rm -rf ${server_ip}
+            done
+        else
+            log "The ${server_ip} can not collect logfile"
+        fi
+   done
     
     # download logfile
     log "download log package link:${JOB_URL}/ws"
