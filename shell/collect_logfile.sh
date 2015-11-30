@@ -55,7 +55,7 @@ function collect_logfile() {
     for i in ${server_arr[*]}
     do
         echo -e "\t$n.$i\n"
-        n = `expr $n + 1`
+        n=`expr $n + 1`
     done
 
     for server in ${server_arr[*]}
