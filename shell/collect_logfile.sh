@@ -53,10 +53,9 @@ function collect_logfile() {
     local n=1
     for i in ${server_arr[*]}
     do
-        echo -e "Need to collect the logfile Server[$n]-IP:PORT\n$i\n"
+        echo -e "Need to collect the logfile Server[$n]\nIP:PORT\n$i\n"
         n=`expr $n + 1`
     done
-    log "####### Will collect ${#server_arr[*]} machine logfile #######"
 
     for server in ${server_arr[*]}
     do
@@ -65,16 +64,7 @@ function collect_logfile() {
         server_split=(${server//:/ })
 
         server_ip=${server_split[0]}
-      	if [ -z "${server_ip}" ]; then
-    	    log "Please check if your IP:${sever_ip} input is correct."
-    	fi
-        continue
-
         server_port=${server_split[1]}
-      	if [ -z "${server_port}" ]; then
-    	    log "Please check if your IP for Port:${sever_port} input is correct."
-    	fi
-        continue
 
         log "####### The server ip: ${server_ip}, ssh port: ${server_port} #######"
 
@@ -120,7 +110,7 @@ function collect_logfile() {
                 cd ${work_path}
                     
                 # compress current ${server_ip} logfile, include empty file
-                tar -zcf ${server_hostname}-${server_ip}-${collect_time}.tar.gz ${server_ip}/*
+                tar -zcvf ${server_hostname}-${server_ip}-${collect_time}.tar.gz ${server_ip}/*
             done
 
             # Delete ${server_ip}
@@ -128,10 +118,15 @@ function collect_logfile() {
         else
             log "The ${server_ip} can not collect logfile"
         fi
-   done
+    done
     
-    # download logfile
-    log "download log package link:${JOB_URL}/ws"
+    judge_empty=`ls | wc -l`
+    if [ ${judge_empty} -ge 0]; then
+        # download logfile
+        log "Download log package link:${JOB_URL}/ws"
+    else
+        log "Sorry, Log packege is empty!"
+    fi
 }
 
 #######################################################################################
