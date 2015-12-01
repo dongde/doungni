@@ -102,15 +102,15 @@ function collect_logfile() {
                         # collect the tail line of the log file.
                         ssh -i ${ssh_key_file} -p ${server_port} -o StrictHostKeyChecking=no root@${server_ip} "tail -n ${tail_line} ${logfile}" > ./${logfile_parent_dir}/${logfile_name}
                     fi
-    	        else
-        	        log "####### The ${logfile} is not found on the ${server_hostname}-${server_ip}-${server_port} #######"
-                fi
 
-                # If you have collected the log file, pack all the log files in the server
-                cd ${work_path}
-                    
-                # compress current ${server_ip} logfile, include empty file
-                tar -zcvf ${server_hostname}-${server_ip}-${sever_port}-${collect_time}.tar.gz ${server_ip}-${server_port}/*
+                    # Pack all the log files in the server
+                    cd ${work_path}
+                        
+                    # compress current ${server_ip} logfile, include empty file
+                    tar -zcvf ${server_hostname}-${server_ip}-${sever_port}${collect_time}.tar.gz ${server_ip}-${server_port}/*
+    	        else
+        	        log "####### The [${logfile}] is not found on the [${server_hostname}-${server_ip}-${server_port}] #######"
+                fi
             done
 
             # Delete ${server_ip}
