@@ -121,7 +121,7 @@ function collect_logfile() {
     done
     
     judge_empty=`ls | wc -l`
-    if [ ${judge_empty} -ge 0]; then
+    if [ ${judge_empty} -ge 0 ]; then
         # download logfile
         log "Download log package link:${JOB_URL}/ws"
     else
