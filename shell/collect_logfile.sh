@@ -55,19 +55,17 @@ function collect_logfile() {
     for i in ${server_arr[*]}
     do
         n=`expr $n + 1`
-        echo -e "Need to collect the logfile Server[$n]\nIP:PORT\n$i\n"
+        echo -e "Need to collect the logfile Server[$n]:\nIP:PORT\n$i\n"
     done
 
     for server in ${server_arr[*]}
     do
-        log "Collect logfile the ServerIp:Port:${server}"
-
         server_split=(${server//:/ })
 
         server_ip=${server_split[0]}
         server_port=${server_split[1]}
 
-        echo -e "The ServerIp:Port:\n${server_ip}:${server_port}"
+        echo -e "ServerIp:${server_ip}\nServerPort:${server_port}"
 
         # Increase the IP:Port connection judgment
         echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
@@ -83,7 +81,7 @@ function collect_logfile() {
                 server_hostname=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "hostname"`
                 
                 # By connect ip collect logfile
-                echo -e "Collect logfile:\n[Hostname:${server_hostname}]\n[ServerIp:Port:${server_ip}:${server_port}]\n[Logfile: $logfile]"
+                echo -e "Collect logfile:\nHostname:${server_hostname}\nServerIp:${server_ip}\nServerPort:${server_port}\nLogfile: $logfile"
                 
     
            	    # True if logfile exists and is readable
@@ -108,9 +106,9 @@ function collect_logfile() {
                     cd ${work_path}
                         
                     # compress current ${server_ip} logfile, include empty file
-                    tar -zcvf ${server_hostname}-${server_ip}-${sever_port}${collect_time}.tar.gz ${server_ip}-${server_port}/*
+                    tar -zcvf ${server_hostname}-${server_ip}-${server_port}${collect_time}.tar.gz ${server_ip}-${server_port}/*
     	        else
-        	        echo -e "The [${logfile}]is not found on the:\n[Hostname:${server_hostname}]\n[ServerIp:Port:${server_ip}:${server_port}]"
+        	        echo -e "Logfile:${logfile}\nIs not found on the Server:\nHostname:${server_hostname}\nServerIp:${server_ip}\nServerPort${server_port}"
                 fi
             done
 
@@ -124,9 +122,9 @@ function collect_logfile() {
     judge_empty=`ls | wc -l`
     if [ ${judge_empty} -ge 0 ]; then
         # download logfile
-        log "Download log package link:${JOB_URL}/ws"
+        echo "Download log package link:${JOB_URL}/ws"
     else
-        log "Sorry, Log packege is empty!"
+        echo "Sorry, Log packege is empty!"
     fi
 }
 
