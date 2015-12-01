@@ -25,7 +25,7 @@
 function log() {
     local msg=$*
 
-    echo -ne `date +['%Y-%m-%d %H-%M-%S']` " \n$msg\n"
+    echo -e `date +['%Y-%m-%d %H-%M-%S']` "\n$msg\n"
 }
 
 #######################################################################################
@@ -43,8 +43,8 @@ function collect_logfile() {
 
     # Non NULL judgment of ${server_list}
     if [ -z "${server_list}" ]; then
-	log "Please refer to the correct parameters for the prompt configuration"
-	exit 1
+	    log "Please refer to the correct parameters for the prompt configuration"
+	    exit 1
     fi
 
     # Each server is separated by a comma
@@ -54,9 +54,10 @@ function collect_logfile() {
     log "Current collect logfile IP:Port:"
     for i in ${server_arr[*]}
     do
-        echo -e "\t$n.$i\n"
+        echo -e "$n.$i\n"
         n=`expr $n + 1`
     done
+    log "####### Will collect ${#server_arr[*]} machine logfile #######"
 
     for server in ${server_arr[*]}
     do
@@ -66,20 +67,22 @@ function collect_logfile() {
 
         server_ip=${server_split[0]}
       	if [ -z "${server_ip}" ]; then
-    	    log "####### Please refer to the correct parameters for the prompt configuration #######"
-	        exit 1
+    	    log "Please check if your IP:${sever_ip} input is correct."
     	fi
+        continue
 
         server_port=${server_split[1]}
       	if [ -z "${server_port}" ]; then
-    	    log "####### Please refer to the correct parameters for the prompt configuration #######"
-	        exit 1
+    	    log "Please check if your IP for Port:${sever_port} input is correct."
     	fi
+        continue
 
         log "####### The server ip: ${server_ip}, ssh port: ${server_port} #######"
 
         # Increase the IP connection judgment
-        ping -c2 ${server_ip}
+        # Just use one second to test whether the network is connected
+        ping -c1 ${server_ip} 2>/dev/null 1>/dev/null
+
         if [ $? -eq 0 ]; then
     	    mkdir -p ${work_path}/${server_ip}
     	    cd ${work_path}/${server_ip}
@@ -89,14 +92,13 @@ function collect_logfile() {
             do
                 # get server_ip hostname
                 server_hostname=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "hostname"`
-    
+                
                 # by connect ip collect logfile
                 log "####### Start into ${server_hostname}-${server} collect logfile #######"
                 log "####### Logfile: $logfile #######"
     
            	    # True if logfile exists and is readable
-                ssh_result=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "\
-                    test -r ${logfile}" && echo yes || echo no`
+                ssh_result=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "test -r ${logfile}" && echo yes || echo no`
     
                 # If exist and readable
                 if [ "x${ssh_result}" == "xyes" ]; then
@@ -108,18 +110,15 @@ function collect_logfile() {
                     # ${tail_line} <= 0 or null
                     if [ $tail_line -le 0 ] || [ -z $tail_line ];then
         	            log "####### Please refer to the correct parameters for the prompt configuration #######"
-                        exit 1
                     else
                         # collect the tail line of the log file.
-                        ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "\
-                            tail -n ${tail_line} ${logfile}" > ./${logfile_parent_dir}/${logfile_name}
+                        ssh -i ${ssh_key_file} -p ${server_port} -o StrictHostKeyChecking=no root@${server_ip} "tail -n ${tail_line} ${logfile}" > ./${logfile_parent_dir}/${logfile_name}
                     fi
     	        else
         	        log "####### The ${logfile} is not found on the ${server_hostname}-${server} #######"
                 fi
 
-                # Pack all the log files in the server
-		        
+                # If you have collected the log file, pack all the log files in the server
                 cd ${work_path}
                     
                 # compress current ${server_ip} logfile, include empty file
@@ -135,7 +134,6 @@ function collect_logfile() {
     # download logfile
     log "download log package link:${JOB_URL}/ws"
 }
-
 
 #######################################################################################
 # Shell Entracnce 
