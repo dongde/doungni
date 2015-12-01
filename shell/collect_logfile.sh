@@ -50,11 +50,11 @@ function collect_logfile() {
     # Each server is separated by a comma
     server_arr=(${server_list//,/ })
 
-    local n=1
+    local n=0
     for i in ${server_arr[*]}
     do
-        echo -e "Need to collect the logfile Server[$n]\nIP:PORT\n$i\n"
         n=`expr $n + 1`
+        echo -e "Need to collect the logfile Server[$n]\nIP:PORT\n$i\n"
     done
 
     for server in ${server_arr[*]}
@@ -72,8 +72,8 @@ function collect_logfile() {
         echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
 
         if [ $? -eq 0 ]; then
-    	    mkdir -p ${work_path}/${server_ip}
-    	    cd ${work_path}/${server_ip}
+    	    mkdir -p ${work_path}/${server_ip}-${server_port}
+    	    cd ${work_path}/${server_ip}-${server_port}
     
             # cycle logfile_list
             for logfile in ${logfile_list[*]}
@@ -82,7 +82,7 @@ function collect_logfile() {
                 server_hostname=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "hostname"`
                 
                 # by connect ip collect logfile
-                log "####### Start into ${server_hostname}-${server} collect logfile #######"
+                log "####### Start into ${server_hostname}-${server_ip}-${server_port} collect logfile #######"
                 log "####### Logfile: $logfile #######"
     
            	    # True if logfile exists and is readable
@@ -103,20 +103,20 @@ function collect_logfile() {
                         ssh -i ${ssh_key_file} -p ${server_port} -o StrictHostKeyChecking=no root@${server_ip} "tail -n ${tail_line} ${logfile}" > ./${logfile_parent_dir}/${logfile_name}
                     fi
     	        else
-        	        log "####### The ${logfile} is not found on the ${server_hostname}-${server} #######"
+        	        log "####### The ${logfile} is not found on the ${server_hostname}-${server_ip}-${server_port} #######"
                 fi
 
                 # If you have collected the log file, pack all the log files in the server
                 cd ${work_path}
                     
                 # compress current ${server_ip} logfile, include empty file
-                tar -zcvf ${server_hostname}-${server_ip}-${collect_time}.tar.gz ${server_ip}/*
+                tar -zcvf ${server_hostname}-${server_ip}-${sever_port}-${collect_time}.tar.gz ${server_ip}-${server_port}/*
             done
 
             # Delete ${server_ip}
-            rm -rf ${server_ip}
+            rm -rf ${server_ip}-${server_port}
         else
-            log "The ${server_ip} can not collect logfile"
+            log "The ${server_ip}-${server_port} can not collect logfile"
         fi
     done
     
