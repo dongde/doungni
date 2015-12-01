@@ -50,6 +50,7 @@ function collect_logfile() {
     # Each server is separated by a comma
     server_arr=(${server_list//,/ })
 
+    # Count collecting log on the server, use variable n
     local n=0
     for i in ${server_arr[*]}
     do
@@ -59,14 +60,14 @@ function collect_logfile() {
 
     for server in ${server_arr[*]}
     do
-        log "####### Collect logfile the server_ip:port:${server} #######"
+        log "Collect logfile the ServerIp:Port:${server}"
 
         server_split=(${server//:/ })
 
         server_ip=${server_split[0]}
         server_port=${server_split[1]}
 
-        log "####### The server ip: ${server_ip}, ssh port: ${server_port} #######"
+        echo -e "The ServerIp:Port:\n${server_ip}:${server_port}"
 
         # Increase the IP:Port connection judgment
         echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
@@ -75,15 +76,15 @@ function collect_logfile() {
     	    mkdir -p ${work_path}/${server_ip}-${server_port}
     	    cd ${work_path}/${server_ip}-${server_port}
     
-            # cycle logfile_list
+            # Cycle logfile_list
             for logfile in ${logfile_list[*]}
             do
-                # get server_ip hostname
+                # Get server_ip hostname
                 server_hostname=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "hostname"`
                 
-                # by connect ip collect logfile
-                log "####### Start into ${server_hostname}-${server_ip}-${server_port} collect logfile #######"
-                log "####### Logfile: $logfile #######"
+                # By connect ip collect logfile
+                echo -e "Collect logfile:\n[Hostname:${server_hostname}]\n[ServerIp:Port:${server_ip}:${server_port}]\n[Logfile: $logfile]"
+                
     
            	    # True if logfile exists and is readable
                 ssh_result=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "test -r ${logfile}" && echo yes || echo no`
@@ -97,7 +98,7 @@ function collect_logfile() {
     
                     # ${tail_line} <= 0 or null
                     if [ $tail_line -le 0 ] || [ -z $tail_line ];then
-        	            log "####### Please refer to the correct parameters for the prompt configuration #######"
+        	            log "Please refer to the correct parameters for the prompt configuration"
                     else
                         # collect the tail line of the log file.
                         ssh -i ${ssh_key_file} -p ${server_port} -o StrictHostKeyChecking=no root@${server_ip} "tail -n ${tail_line} ${logfile}" > ./${logfile_parent_dir}/${logfile_name}
@@ -109,14 +110,14 @@ function collect_logfile() {
                     # compress current ${server_ip} logfile, include empty file
                     tar -zcvf ${server_hostname}-${server_ip}-${sever_port}${collect_time}.tar.gz ${server_ip}-${server_port}/*
     	        else
-        	        log "####### The [${logfile}] is not found on the [${server_hostname}-${server_ip}-${server_port}] #######"
+        	        echo -e "The [${logfile}]is not found on the:\n[Hostname:${server_hostname}]\n[ServerIp:Port:${server_ip}:${server_port}]"
                 fi
             done
 
             # Delete ${server_ip}
             rm -rf ${server_ip}-${server_port}
         else
-            log "The ${server_ip}-${server_port} can not collect logfile"
+            echo -e "Can not collect logfile in the:\n[Hostname:${hostname}]\n[ServerIp:Port:${server_ip}:${server_port}] "
         fi
     done
     
