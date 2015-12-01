@@ -51,10 +51,9 @@ function collect_logfile() {
     server_arr=(${server_list//,/ })
 
     local n=1
-    log "Current collect logfile IP:Port:"
     for i in ${server_arr[*]}
     do
-        echo -e "$n.$i\n"
+        echo -e "Need to collect the logfile Server[$n]-IP:PORT\n$i\n"
         n=`expr $n + 1`
     done
     log "####### Will collect ${#server_arr[*]} machine logfile #######"
@@ -79,9 +78,8 @@ function collect_logfile() {
 
         log "####### The server ip: ${server_ip}, ssh port: ${server_port} #######"
 
-        # Increase the IP connection judgment
-        # Just use one second to test whether the network is connected
-        ping -c1 ${server_ip} 2>/dev/null 1>/dev/null
+        # Increase the IP:Port connection judgment
+        echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
 
         if [ $? -eq 0 ]; then
     	    mkdir -p ${work_path}/${server_ip}
@@ -123,9 +121,10 @@ function collect_logfile() {
                     
                 # compress current ${server_ip} logfile, include empty file
                 tar -zcf ${server_hostname}-${server_ip}-${collect_time}.tar.gz ${server_ip}/*
-                # Delete ${server_ip}
-                rm -rf ${server_ip}
             done
+
+            # Delete ${server_ip}
+            rm -rf ${server_ip}
         else
             log "The ${server_ip} can not collect logfile"
         fi
