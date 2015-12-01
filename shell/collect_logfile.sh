@@ -81,7 +81,7 @@ function collect_logfile() {
                 server_hostname=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "hostname"`
                 
                 # By connect ip collect logfile
-                echo -e "Collect logfile:\nHostname:${server_hostname}\nServerIp:${server_ip}\nServerPort:${server_port}\nLogfile: $logfile"
+                echo -e "Collect logfile from:\nHostname:${server_hostname}\nServerIp:${server_ip}\nServerPort:${server_port}\nLogfile: $logfile"
                 
     
            	    # True if logfile exists and is readable
@@ -102,11 +102,15 @@ function collect_logfile() {
                         ssh -i ${ssh_key_file} -p ${server_port} -o StrictHostKeyChecking=no root@${server_ip} "tail -n ${tail_line} ${logfile}" > ./${logfile_parent_dir}/${logfile_name}
                     fi
 
-                    # Pack all the log files in the server
-                    cd ${work_path}
-                        
-                    # compress current ${server_ip} logfile, include empty file
-                    tar -zcvf ${server_hostname}-${server_ip}-${server_port}${collect_time}.tar.gz ${server_ip}-${server_port}/*
+                    if [ `ls | wc -l` -ge 0]; then
+                        # Pack all the log files in the server
+                        cd ${work_path}
+                            
+                        # compress current named:hostname-server_ip-server_port-current_time logfile
+                        tar -zcvf ${server_hostname}-${server_ip}-${server_port}-${collect_time}.tar.gz ${server_ip}-${server_port}/*
+                    else
+                        echo -e "The ${server_ip}-${server_port} folder is empty"
+                    fi
     	        else
         	        echo -e "Logfile:${logfile}\nIs not found on the Server:\nHostname:${server_hostname}\nServerIp:${server_ip}\nServerPort${server_port}"
                 fi
@@ -119,8 +123,7 @@ function collect_logfile() {
         fi
     done
     
-    judge_empty=`ls | wc -l`
-    if [ ${judge_empty} -ge 0 ]; then
+    if [ `ls | wc -l` -ge 0 ]; then
         # download logfile
         echo "Download log package link:${JOB_URL}/ws"
     else
