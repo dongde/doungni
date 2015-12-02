@@ -43,8 +43,8 @@ function collect_logfile() {
 
     # Non NULL judgment of ${server_list}
     if [ -z "${server_list}" ]; then
-	    log "Please refer to the correct parameters for the prompt configuration"
-	    exit 1
+        log "Please refer to the correct parameters for the prompt configuration"
+        exit 1
     fi
 
     # Each server is separated by a comma
@@ -71,7 +71,7 @@ function collect_logfile() {
         echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
 
         if [ $? -eq 0 ]; then
-            echo "New log file save folder, named: ip-port"
+            log "New log file save folder, named: ip-port"
     	    mkdir -p ${work_path}/${server_ip}-${server_port}
     	    cd ${work_path}/${server_ip}-${server_port}
     
@@ -82,40 +82,41 @@ function collect_logfile() {
                 server_hostname=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "hostname"`
                 
                 # By connect ip collect logfile
-                echo -e "\nCurrent collection of log information:\nHostname:${server_hostname}\nServerIp:${server_ip}\nServerPort:${server_port}\nLogfile: $logfile\n"
+                echo -e "\nCurrent collection of log information:\nHostname:${server_hostname}\nServer_ip:${server_ip}\nServer_port:${server_port}\nLogfile: $logfile\n"
                 
     
-           	    # True if logfile exists and is readable
+                # True if logfile exists and is readable
                 ssh_result=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "test -r ${logfile}" && echo yes || echo no`
     
                 # If exist and readable
                 if [ "x${ssh_result}" == "xyes" ]; then
                     # deal with logfile
-                	logfile_parent_dir=${logfile%/*}
+                    logfile_parent_dir=${logfile%/*}
                     mkdir -p ${logfile_parent_dir#*/}
                     logfile_name=${logfile##*/}
     
                     # ${tail_line} <= 0 or null
                     if [ $tail_line -le 0 ] || [ -z $tail_line ];then
-        	            log "Please refer to the correct parameters for the prompt configuration"
+                        log "Please refer to the correct parameters for the prompt configuration"
                     else
                         # collect the tail line of the log file.
                         ssh -i ${ssh_key_file} -p ${server_port} -o StrictHostKeyChecking=no root@${server_ip} "tail -n ${tail_line} ${logfile}" > ./${logfile_parent_dir}/${logfile_name}
                     fi
 
-                    if [ `ls | wc -l` -ge 0 ]; then
-                        # Pack all the log files in the server
-                        cd ${work_path}
-                            
-                        # compress current named:hostname-server_ip-server_port-current_time logfile
-                        tar -zcvf ${server_hostname}-${server_ip}-${server_port}-${collect_time}.tar.gz ${server_ip}-${server_port}/*
-                    else
-                        echo -e "\nThe ${server_ip}-${server_port} folder is empty,did not collect the log file\n"
-                    fi
     	        else
-                    echo -e "\nThe logfile:${logfile}\nOn the server[ip:${server_ip}-port:${server_port}] is not readable or does not exist\n"
+                    echo -e "\nThe logfile:${logfile}\nOn the server[ip:port-${server_ip}:${server_port}] is not readable or does not exist\n"
                 fi
             done
+
+            if [ `ls | wc -l` -ge 0 ]; then
+                # Pack all the log files in the server
+                cd ${work_path}
+                            
+                # compress current named:hostname-server_ip-server_port-current_time logfile
+                tar -zcvf ${server_hostname}-${server_ip}-${server_port}-${collect_time}.tar.gz ${server_ip}-${server_port}/*
+            else
+                echo -e "\nThe ${server_ip}-${server_port} folder is empty,did not collect the log file\n"
+            fi
 
             # Delete ${server_ip}
             rm -rf ${server_ip}-${server_port}
