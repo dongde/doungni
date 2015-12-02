@@ -69,8 +69,8 @@ function collect_logfile() {
         count_traversal=`expr ${count_traversal} + 1`
         echo -e "\nStart to collect the log of the ${count_traversal} server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
 
-        # Check if IP:PORT can connect
-        telnet_return=`nc -w 2 ${server_ip} ${server_port} && echo yes || echo no
+        # Check if IP:PORT can connect, timeout 1 seconds
+        telnet_return=`nc -w 1 ${server_ip} ${server_port} && echo yes || echo no`
 
         if [ "x${telnet_return}" == "xyes" ]; then
             echo "New logfile save folder, named: ip-port"
