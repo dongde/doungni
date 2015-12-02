@@ -48,10 +48,10 @@ function Update_docker_image() {
             if [ "x$?"="x0" ]; then
                 cat \`find ! -name "*.md5" ! -name "*.sh*" ! -name "*.tar.gz" ! -name "*.*"\` > ${docker_image_name}
             else
-                log "md5 verify failed"
+                log "This md5 verify failed"
             fi
         else
-            log "*.md5 can not read"
+            log "The *.md5 can not read"
         fi
 
         docker -v
@@ -59,7 +59,7 @@ function Update_docker_image() {
             docker load -i ${docker_image_name}
 
             docker run -td --privileged ${appoint_update_docker} /bin/bash
-            log "docker images install success"
+            log "Docker images install success"
         fi
 
         exit

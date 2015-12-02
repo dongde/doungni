@@ -6,6 +6,7 @@
 # Author   : Doungni  
 # Describe : check network,by checkNetwork()
 # Update   : 10.18   
+# Idea     : 
 ##################################################
 
 function checkNetwork() {

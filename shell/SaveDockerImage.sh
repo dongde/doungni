@@ -47,20 +47,21 @@ function save_docker_image() {
         mkdir -p ${docker_image_path}
         cd ${docker_image_path}
 	
-	docker -v
-	return_val=$?
-	if [ "x${return_val}"="x0" ]; then
- 	    docker save ${appoint_save_docker} > ${docker_image_name}
+	    docker -v
+	    return_val=$?
+	    if [ "x${return_val}"="x0" ]; then
+ 	        docker save ${appoint_save_docker} > ${docker_image_name}
 
             if [ -r ${docker_image_name} ]; then
                 split -b ${file_size} ${docker_image_name} ${docker_image_name%%.*}
-	        md5sum \`find ! -name "*.md5" ! -name "*.tar.gz" ! -name "*.*"\` > ${docker_image_name%%.*}.md5
+	            md5sum \`find ! -name "*.md5" ! -name "*.tar.gz" ! -name "*.*"\` > ${docker_image_name%%.*}.md5
             else
-	        log "The ${docker_image_name} can not read"
+	            log "The ${docker_image_name} can not read"
             fi
- 	else
-	    log "Docker service can not find"
-	fi
+ 	    else
+	        log "Docker service can not find"
+	    fi
+
         exit
 EOF
 }
