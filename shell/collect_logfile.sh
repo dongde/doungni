@@ -4,7 +4,7 @@
 #  Email         : doungni@doungni.com
 #  Last modified : 2015-11-04 10:53
 #  Filename      : collect_logfile.sh
-#  Description   : collect logfile, by ssh and scp
+#  Description   : collect logfile, by ssh 
 #######################################################################################
 
 #######################################################################################
@@ -51,23 +51,23 @@ function collect_logfile() {
     server_arr=(${server_list//,/ })
 
     # Count collecting log on the server, use variable m
-    local m=0
+    local count_server=0
     for i in ${server_arr[*]}
     do
-        m=`expr $m + 1`
-        echo -e "\nNeed to collect the logfile Server $m:\nIp:Port\n$i\n"
+        count_server=`expr ${count_server} + 1`
+        echo -e "\nNeed to collect the logfile Server ${count_server}:\nIp:Port\n$i\n"
     done
 
     # Count current traversal of the server, use variable n
-    local n=0
+    local count_traversal=0
     for server in ${server_arr[*]}
     do
         server_split=(${server//:/ })
         server_ip=${server_split[0]}
         server_port=${server_split[1]}
 
-        n=`expr $n + 1`
-        echo -e "\nStart to collect the log of the [$n] server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
+        count_traversal=`expr ${count_traversal} + 1`
+        echo -e "\nStart to collect the log of the $n server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
 
         # Check if IP:PORT can connect
         echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
@@ -126,14 +126,11 @@ function collect_logfile() {
     done
     
     if [ `ls | wc -l` -ge 0 ]; then
-        # download logfile
+        # Download logfile
         echo -e "\nDownload log package link:${JOB_URL}/ws\n"
     else
         echo -e "\nSorry, Log packege is empty!\n"
     fi
-
-    # delete_expired_logfile
-    find ${WORKSPACE} -mtime +${retention_day} -name "${JOB_NAME}*" -exec rm -rf {} \+
 }
 
 #######################################################################################
@@ -151,4 +148,6 @@ cd ${work_path}
 # connect server and collect logfile
 collect_logfile
 
+# Delete retention day tar
+find ${WORKSPACE} -mtime +${retention_day} -name "${JOB_NAME}*" -exec rm -rf {} \+
 ############################ collect_logfile.sh End #################################
