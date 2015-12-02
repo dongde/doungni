@@ -55,7 +55,7 @@ function collect_logfile() {
     for i in ${server_arr[*]}
     do
         m=`expr $m + 1`
-        echo -e "\nNeed to collect the logfile Server $n:\nIp:Port\n$i\n"
+        echo -e "\nNeed to collect the logfile Server $m:\nIp:Port\n$i\n"
     done
 
     # Count current traversal of the server, use variable n
@@ -67,7 +67,7 @@ function collect_logfile() {
         server_port=${server_split[1]}
 
         n=`expr $n + 1`
-        echo -e "\nStart to collect the log of the [$m] server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
+        echo -e "\nStart to collect the log of the [$n] server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
 
         # Check if IP:PORT can connect
         echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
@@ -131,6 +131,9 @@ function collect_logfile() {
     else
         echo -e "\nSorry, Log packege is empty!\n"
     fi
+
+    # delete_expired_logfile
+    find ${WORKSPACE} -mtime +${retention_day} -name "${JOB_NAME}*" -exec rm -rf {} \+
 }
 
 #######################################################################################
@@ -147,8 +150,5 @@ cd ${work_path}
 
 # connect server and collect logfile
 collect_logfile
-
-# delete_expired_logfile
-find ${WORKSPACE} -mtime +${retention_day} -name "${JOB_NAME}*" -exec rm -rf {} \+
 
 ############################ collect_logfile.sh End #################################
