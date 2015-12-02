@@ -70,9 +70,9 @@ function collect_logfile() {
         echo -e "\nStart to collect the log of the ${count_traversal} server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
 
         # Check if IP:PORT can connect
-        echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
+        telnet_return=`echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected && echo yes || echo no`
 
-        if [ $? -eq 0 ]; then
+        if [ "x${telnet_return}" == "xyes" ]; then
             echo "New logfile save folder, named: ip-port"
     	    mkdir -p ${work_path}/${server_ip}-${server_port}
     	    cd ${work_path}/${server_ip}-${server_port}
