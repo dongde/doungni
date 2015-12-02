@@ -17,15 +17,15 @@
 sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
 
 # [1.2] Open the /etc/apt/sources.list.d/docker.list file in your favorite editor. If the file doesn’t exist, create it. Remove any existing entries.
-if [ ! -f "/etc/apt/source.list.d/docker.list" ]; then
-    cat > /etc/apt/source.list.d/docker.list << EOF
+if [ ! -f "/etc/apt/sources.list.d/docker.list" ]; then
+    cat > /etc/apt/sources.list.d/docker.list << EOF
 deb https://apt.dockerproject.org/repo ubuntu-trusty main
 EOF
 fi
 
 # [1.3] Update the apt package index.
-sudo apt-get update
-if [ $? != 0 ]
+update_return=`sudo apt-get update && echo yes || echo no`
+if [ "x${update_return}" == "xno"  ]
     sudo apt-get install apt-transport-https -y
 fi
 # [1.4] Purge the old repo if it exists.
@@ -39,7 +39,7 @@ sudo apt-cache policy docker-engine
 sudo apt-get update
 
 # [2.2] Install the recommended package.
-sudo apt-get install linux-image-extra-$(uname -r) -y
+sudo apt-get install linux-image-extra-$(uname -r) -y 
 
 # 2.Install
 # Make sure you have installed the prerequisites for your Ubuntu version. Then, install Docker using the following:
