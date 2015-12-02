@@ -9,7 +9,7 @@
 
 #######################################################################################
 # env variables  : work_path, collect_time, server_list, logfile_list, tail_line
-#                  collect_time, ssh_key_file, expired_del
+#                  ssh_key_file, retention_day
 # env value
 # work_path:     : ${WORKSPACE}
 # collect_time   : `date+'%Y%m%d-%H%M%S'`
@@ -49,31 +49,30 @@ function collect_logfile() {
     # Each server is separated by a comma
     server_arr=(${server_list//,/ })
 
-    # Count collecting log on the server, use variable n
-    local n=0
+    # Count collecting log on the server, use variable m
+    local m=0
     for i in ${server_arr[*]}
     do
-        n=`expr $n + 1`
+        m=`expr $m + 1`
         echo -e "\nNeed to collect the logfile Server[$n]:\nIp:Port\n$i\n"
     done
-    echo "$n"
 
-    # Count collecting log on the server, use variable n
-    local m=0
+    # Count current traversal of the server, use variable n
+    local n=0
     for server in ${server_arr[*]}
     do
         server_split=(${server//:/ })
         server_ip=${server_split[0]}
         server_port=${server_split[1]}
 
-        m=`expr $m + 1`
+        n=`expr $n + 1`
         echo -e "\nStart to collect the log of the $m server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
 
         # Check if IP:PORT can connect
         echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
 
         if [ $? -eq 0 ]; then
-            echo "New log file save folder, named: ip-port"
+            echo "New logfile save folder, named: ip-port"
     	    mkdir -p ${work_path}/${server_ip}-${server_port}
     	    cd ${work_path}/${server_ip}-${server_port}
     
@@ -149,6 +148,6 @@ cd ${work_path}
 collect_logfile
 
 # delete_expired_logfile
-find ${WORKSPACE} -mtime +${expired_del} -name "${JOB_NAME}*" -exec rm -rf {} \+
+find ${WORKSPACE} -mtime +${retention_day} -name "${JOB_NAME}*" -exec rm -rf {} \+
 
 ############################ collect_logfile.sh End #################################
