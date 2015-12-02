@@ -77,9 +77,14 @@ function collect_logfile() {
     	    mkdir -p ${work_path}/${server_ip}-${server_port}
     	    cd ${work_path}/${server_ip}-${server_port}
     
+            # Count collecting log on the server, use variable m
+            local count_logfile=0
             # Cycle logfile_list
             for logfile in ${logfile_list[*]}
             do
+                count_logfile=`expr ${count_logfile} + 1`
+                echo -e "\nStart to collect logfile:${count_logfile}\n"
+
                 # Get server_ip hostname
                 server_hostname=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "hostname"`
                 
@@ -145,8 +150,9 @@ work_path="${WORKSPACE}/${JOB_NAME}-${collect_time}"
 [ ! -d ${work_path} ] && mkdir -p ${work_path}
 cd ${work_path}
 
-# Delete retention day tar
-find ${WORKSPACE} -mtime +${retention_day} -name "${JOB_NAME}*" -exec rm -rf {} \+
 # connect server and collect logfile
 collect_logfile
+
+# Delete retention day tar
+find ${WORKSPACE} -mtime +${retention_day} -name "${JOB_NAME}*" -exec rm -rf {} \+
 ############################ collect_logfile.sh End #################################
