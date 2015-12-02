@@ -40,7 +40,6 @@ function log() {
 #                  compress logfile
 #######################################################################################
 function collect_logfile() {
-
     # Non NULL judgment of ${server_list}
     if [ -z "${server_list}" ]; then
         log "Please refer to the correct parameters for the prompt configuration"
