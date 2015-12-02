@@ -67,7 +67,7 @@ function collect_logfile() {
         server_port=${server_split[1]}
 
         count_traversal=`expr ${count_traversal} + 1`
-        echo -e "\nStart to collect the log of the $n server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
+        echo -e "\nStart to collect the log of the ${count_traversal} server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
 
         # Check if IP:PORT can connect
         echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
@@ -145,9 +145,8 @@ work_path="${WORKSPACE}/${JOB_NAME}-${collect_time}"
 [ ! -d ${work_path} ] && mkdir -p ${work_path}
 cd ${work_path}
 
-# connect server and collect logfile
-collect_logfile
-
 # Delete retention day tar
 find ${WORKSPACE} -mtime +${retention_day} -name "${JOB_NAME}*" -exec rm -rf {} \+
+# connect server and collect logfile
+collect_logfile
 ############################ collect_logfile.sh End #################################
