@@ -56,20 +56,24 @@ function collect_logfile() {
         n=`expr $n + 1`
         echo -e "\nNeed to collect the logfile Server[$n]:\nIp:Port\n$i\n"
     done
+    echo "$n"
 
+    # Count collecting log on the server, use variable n
+    local m=0
     for server in ${server_arr[*]}
     do
         server_split=(${server//:/ })
         server_ip=${server_split[0]}
         server_port=${server_split[1]}
 
-        echo -e "\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
+        m=`expr $m + 1`
+        echo -e "\nStart to collect the log of the $m server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
 
         # Check if IP:PORT can connect
         echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
 
         if [ $? -eq 0 ]; then
-            log "New log file save folder, named: ip-port"
+            echo "New log file save folder, named: ip-port"
     	    mkdir -p ${work_path}/${server_ip}-${server_port}
     	    cd ${work_path}/${server_ip}-${server_port}
     
