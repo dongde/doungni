@@ -8,8 +8,8 @@
 #######################################################################################
 
 #######################################################################################
-# env variables  : work_path, collect_time, server_list, logfile_list, tail_line
-#                  ssh_key_file, retention_day
+# env variables  : work_path, collect_time, ssh_key_file, server_list, logfile_list
+#                  tail_line, retention_day
 # env value
 # work_path:     : ${WORKSPACE}
 # collect_time   : `date+'%Y%m%d-%H%M%S'`
@@ -38,6 +38,7 @@ function log() {
 #                  connect server
 #                  collect logfile
 #                  compress logfile
+#                  output download path
 #######################################################################################
 function collect_logfile() {
     # Non NULL judgment of ${server_list}
@@ -54,7 +55,7 @@ function collect_logfile() {
     for i in ${server_arr[*]}
     do
         m=`expr $m + 1`
-        echo -e "\nNeed to collect the logfile Server[$n]:\nIp:Port\n$i\n"
+        echo -e "\nNeed to collect the logfile Server $n:\nIp:Port\n$i\n"
     done
 
     # Count current traversal of the server, use variable n
@@ -66,7 +67,7 @@ function collect_logfile() {
         server_port=${server_split[1]}
 
         n=`expr $n + 1`
-        echo -e "\nStart to collect the log of the $m server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
+        echo -e "\nStart to collect the log of the [$m] server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
 
         # Check if IP:PORT can connect
         echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
