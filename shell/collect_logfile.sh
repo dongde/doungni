@@ -17,7 +17,7 @@
 # server_list    : By jenkins job configuration
 # logfile_list   : By jenkins job configuration
 # tail_line      : By jenkins job configuration
-# expired_del    : By jenkins job configuration
+# retention_day  : By jenkins job configuration
 #######################################################################################
 
 ############################ collect_logfile.sh Start #################################
@@ -61,13 +61,12 @@ function collect_logfile() {
     for server in ${server_arr[*]}
     do
         server_split=(${server//:/ })
-
         server_ip=${server_split[0]}
         server_port=${server_split[1]}
 
         echo -e "\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
 
-        # Increase the IP:Port connection judgment
+        # Check if IP:PORT can connect
         echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected 2>/dev/null 1>/dev/null
 
         if [ $? -eq 0 ]; then
@@ -83,7 +82,6 @@ function collect_logfile() {
                 
                 # By connect ip collect logfile
                 echo -e "\nCurrent collection of log information:\nHostname:${server_hostname}\nServer_ip:${server_ip}\nServer_port:${server_port}\nLogfile: $logfile\n"
-                
     
                 # True if logfile exists and is readable
                 ssh_result=`ssh -i ${ssh_key_file} -p ${server_port}  -o StrictHostKeyChecking=no root@${server_ip} "test -r ${logfile}" && echo yes || echo no`
@@ -95,14 +93,13 @@ function collect_logfile() {
                     mkdir -p ${logfile_parent_dir#*/}
                     logfile_name=${logfile##*/}
     
-                    # ${tail_line} <= 0 or null
+                    # ${tail_line} less equal 0 or null
                     if [ $tail_line -le 0 ] || [ -z $tail_line ];then
                         log "Please refer to the correct parameters for the prompt configuration"
                     else
                         # collect the tail line of the log file.
                         ssh -i ${ssh_key_file} -p ${server_port} -o StrictHostKeyChecking=no root@${server_ip} "tail -n ${tail_line} ${logfile}" > ./${logfile_parent_dir}/${logfile_name}
                     fi
-
     	        else
                     echo -e "\nThe logfile:${logfile}\nOn the server[ip:port-${server_ip}:${server_port}] is not readable or does not exist\n"
                 fi
