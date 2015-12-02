@@ -70,7 +70,7 @@ function collect_logfile() {
         echo -e "\nStart to collect the log of the ${count_traversal} server:\nServer_ip:${server_ip}\nServer_port:${server_port}\n"
 
         # Check if IP:PORT can connect
-        telnet_return=`echo -e "\n" | telnet ${server_ip} ${server_port} | grep Connected && echo yes || echo no`
+        telnet_return=`nc -w 2 ${server_ip} ${server_port} && echo yes || echo no
 
         if [ "x${telnet_return}" == "xyes" ]; then
             echo "New logfile save folder, named: ip-port"
@@ -126,7 +126,7 @@ function collect_logfile() {
             # Delete ${server_ip}
             rm -rf ${server_ip}-${server_port}
         else
-            echo -e "\nCan not collect logfile in the:\n[Hostname:${hostname}]\n[ServerIp:Port:${server_ip}:${server_port}]\nNotice:Please check if the network is connected or otherwise\n"
+            echo -e "\nCan not collect logfile in the:[ServerIp:Port:${server_ip}:${server_port}]\nNotice:Please check if the network is connected or otherwise\n"
         fi
     done
     
