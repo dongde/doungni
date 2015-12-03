@@ -25,7 +25,7 @@ fi
 
 # [1.3] Update the apt package index.
 update_return=`sudo apt-get update && echo yes || echo no`
-if [ "x${update_return}" == "xno"  ]
+if [ "x${update_return}" == "xno" ]; then
     sudo apt-get install apt-transport-https -y
 fi
 # [1.4] Purge the old repo if it exists.
