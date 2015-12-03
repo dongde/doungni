@@ -50,12 +50,32 @@ function collect_logfile() {
     # Each server is separated by a comma
     server_arr=(${server_list//,/ })
 
-    # Count collecting log on the server, use variable count_machine
+    # If the server_arr has duplicate elements, the duplicate removal operations
+    len=${#server_arr[*]}
+
+    for (( i = 0; i < $len; i++ ))
+    do
+        for (( j = $len -1; j > i; j-- ))
+        do
+            if [[ ${[i]} = ${server_arr[j]} ]]; then
+                unset server_arr[i]
+            fi
+        done
+    done
+
+    # If the server_arr has duplicate elements, output warning information
+    re_len=${#server_arr[*]}
+
+    if [[ ${re_len} -lt ${len} ]]; then
+        echo "Warning: You enter the Server: Ip:Port to have a repeat"
+    fi
+
+    # Re count the need to collect the server, use variable count_machine
     local count_machine=0
-    for i in ${server_arr[*]}
+    for re_server_arr in ${server_arr[*]}
     do
         count_machine=`expr ${count_machine} + 1`
-        echo -e "Need to collect the log file Server Machine ${count_machine}:\nIp:Port\n$i\n"
+        echo -e "Need to collect the log file Server Machine ${count_machine}:\nIp:Port\n${re_server_arr}\n"
     done
 
     # Count current traversal of the server, use variable count_traversal
