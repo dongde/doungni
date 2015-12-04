@@ -57,7 +57,7 @@ function collect_logfile() {
     do
         for (( j = $len -1; j > i; j-- ))
         do
-            if [[ ${[i]} = ${server_arr[j]} ]]; then
+            if [[ ${server_arr[i]} = ${server_arr[j]} ]]; then
                 unset server_arr[i]
             fi
         done
@@ -67,7 +67,8 @@ function collect_logfile() {
     re_len=${#server_arr[*]}
 
     if [[ ${re_len} -lt ${len} ]]; then
-        echo "Warning: You enter the Server: Ip:Port to have a repeat"
+        echo -e "\nWarning: You enter the IP:PORT to have a repeat"
+        echo -e "Notice: We carried out duplicate removal operation of IP:PORT\n"
     fi
 
     # Re count the need to collect the server, use variable count_machine
