@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>100</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>server_list</name>
+          <description>Enter each IP and Port to collect the log files.
+Each server is separated by a comma
+Format:
+[IP1:Port1],[IP2:Port2],...</description>
+          <defaultValue>172.17.42.1:6122,172.17.42.1:6123</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.TextParameterDefinition>
+          <name>logfile_list</name>
+          <description>Enter a log file that you needs to be collected
+Each log file in a row
+Format:
+/full path/logfile1
+/full path/logfile2
+...
+Note: You need to enter the full path to the log</description>
+          <defaultValue>/var/log/alternatives.log
+/var/run/nagiosnrpe.pid
+/var/run/testlogfile/testlogfile
+/var/log/nagios3/archives/testfile.txt
+/var/log/tartest/tarfile</defaultValue>
+        </hudson.model.TextParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>tail_line</name>
+          <description>Collect the last 1000 lines of the log file
+Default 1000
+You can configuration this value
+Note: This value must be greater than 0</description>
+          <defaultValue>1000</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>retention_day</name>
+          <description>Delete expired log
+Default retention 7 day
+You can configuration this value</description>
+          <defaultValue>7</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash -e
+
+#bash -xe /var/lib/jenkins/code/bash_dir/master/devops-knowledgebase/code/jenkins/collect_logfile.sh
+bash /tmp/collect_logfile.sh
+#curl -L https://bitbucket.org/dennyzhang001/devops-knowledgebase/raw/bc0dd05db78d5ae6dbe538e8382bfc943c0b5fff/code/jenkins/collect_logfile.sh | bash -e</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
