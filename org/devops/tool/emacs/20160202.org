@@ -1,0 +1,8 @@
+* Note
+** org-mode note
+*** Describe
+**** Author: doungni
+
+* org-mode gtd记录笔记
+** 描述
+Links: http://orgmode.org/org.html#Installation
